@@ -177,9 +177,11 @@ server <- function(input, output, session) {
         return()
       }
       if (is.null(input$submit)) {
-        return()
+        return() 
       }
       if (input$submit > 0) {
+        input$reload
+        Sys.sleep(2)
         x <- csvfile()
         cormat <- Hmisc::rcorr(as.matrix(x))
         R <- round(cormat$r, 3)
@@ -460,10 +462,133 @@ server <- function(input, output, session) {
   )  
   
   
+###################################################### Plot 1
+  
+  plotInput1 <- reactive({
+    if (is.null(input$file1$datapath)) {
+      return()
+    }
+    if (is.null(input$submit)) {
+      return()
+    }
+    
+    if (input$submit > 0) {
+      X <- as.data.frame(subset(csvfile(), select = input$X))
+      Y <- as.data.frame(subset(csvfile(), select = input$Y))
+      p1<-GGally::ggpairs(X)
+      p1
+    }
+  })
+  
+  
+  ######## UI 
+  
+  output$plot1 <- renderPlot(
+    {
+      
+      plotInput1()
+    },
+    bg = "transparent"
+  )
   
   
   
   
+  #################################### Download Image
+  output$image_down <- renderUI({
+    if (is.null(input$file1$datapath)) {
+      return()
+    }
+    if (is.null(input$submit)) {
+      return()
+    }
+    if (input$submit > 0) {
+      list(downloadButton("downloadImage1",
+                          label = "Download plot1", class = "butt1"
+      ))
+    }
+    
+  })
+  
+  ###### download plot1
+  output$downloadImage1 <- downloadHandler(
+    filename = "plot1.png",
+    content = function(file) {
+      device <- function(..., width, height) {
+        grDevices::png(...,
+                       width = width, height = height,
+                       res = 500, units = "in"
+        )
+      }
+      ggsave(file, plot = plotInput1(), device = device)
+    }
+  )
+  
+ ###################################### Plot 1 finish
+  
+  
+   ########################################## Plot 2
+  
+  plotInput2 <- reactive({
+    if (is.null(input$file1$datapath)) {
+      return()
+    }
+    if (is.null(input$submit)) {
+      return()
+    }
+    
+    if (input$submit > 0) {
+      X <- as.data.frame(subset(csvfile(), select = input$X))
+      Y <- as.data.frame(subset(csvfile(), select = input$Y))
+      p2<-GGally::ggpairs(Y)
+      p2
+    }
+  })
+  
+  
+  ######## UI 
+  
+  output$plot2 <- renderPlot(
+    {
+      
+      plotInput2()
+    },
+    bg = "transparent"
+  )
+  
+  
+  
+  
+  #################################### Download Image
+  output$image_down1 <- renderUI({
+    if (is.null(input$file1$datapath)) {
+      return()
+    }
+    if (is.null(input$submit)) {
+      return()
+    }
+    if (input$submit > 0) {
+      list(downloadButton("downloadImage2",
+                          label = "Download plot2", class = "butt1"
+      ))
+    }
+    
+  })
+  
+  ###### download plot2
+  output$downloadImage2 <- downloadHandler(
+    filename = "plot2.png",
+    content = function(file) {
+      device <- function(..., width, height) {
+        grDevices::png(...,
+                       width = width, height = height,
+                       res = 500, units = "in"
+        )
+      }
+      ggsave(file, plot = plotInput2(), device = device)
+    }
+  ) 
+ ########################################################### plot 2 finish 
   
   
   

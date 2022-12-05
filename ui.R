@@ -57,7 +57,7 @@ ui <- fluidPage(
       )
     ),
     conditionalPanel(
-      "$('#path').hasClass('recalculating')",
+      "$('#corrmat1').hasClass('recalculating')",
       tags$div(tags$b("Loading ...please wait while calculation is going on in the background.....please dont press submit button again "), style = "color:green")
     )
   ),
@@ -67,7 +67,7 @@ ui <- fluidPage(
       tabPanel(
         "Analysis.Results",
         conditionalPanel(
-          "$('#path').hasClass('recalculating')",
+          "$('#corrmat1').hasClass('recalculating')",
           tags$div(tags$b("Loading ...please wait while calculation is going on in the background.....please dont press submit button again "), style = "color:green")
         ),
         uiOutput("note1"),
@@ -98,9 +98,19 @@ ui <- fluidPage(
         tags$br()
       ),
       tabPanel(
-        "Figures",
+        "Plots & graphs",
         tags$br(),
-        tags$br()
+        h3("Generalized pairs plot1"),
+        plotOutput('plot1')%>% withSpinner(color="#0dc5c1"),
+        tags$br(),
+        tags$br(),
+        uiOutput('image_down'),#image to download
+        tags$br(),
+        h3("Generalized pairs plot2"),
+        plotOutput('plot2')%>% withSpinner(color="#0dc5c1"),
+        tags$br(),
+        tags$br(),
+        uiOutput('image_down1'),#image to download
       )
     )
   )
