@@ -5,6 +5,7 @@ library(shiny)
 library(shinyWidgets)
 library(rmarkdown)
 library(shinycssloaders)
+library(dplyr)
 
 ################################################## Ui
 ui <- fluidPage(
@@ -95,6 +96,7 @@ ui <- fluidPage(
         tableOutput("load4"),
         tags$br(),
         tags$br(),
+        uiOutput('var1'),
         tags$br()
       ),
       tabPanel(

@@ -1,0 +1,214 @@
+---
+title: "Canonical Correlation Analysis"
+output: html_document  
+always_allow_html: true
+---
+
+
+```{r setup,echo=FALSE,results='hide', include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ggplot2)
+library(GGally)
+library(CCA)
+library(CCP)
+library(Hmisc)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+## RESULT
+Canonical Correlation Analysis  
+
+```{r, echo = FALSE}
+csvfile <- reactive({
+  csvfile <- input$file1
+  if (is.null(csvfile)) {
+    return(NULL)
+  }
+  dt <- read.csv(csvfile$datapath, header = input$header, sep = ",")
+  dt
+})
+################################ Correlation Matrix
+if (input$submit > 0) {
+  x <- csvfile()
+  cormat <- Hmisc::rcorr(as.matrix(x))
+  R <- round(cormat$r, 3)
+  p <- cormat$P
+  ## Define notions for significance levels; spacing is important.
+  mystars <- ifelse(p < .001, "*** ", ifelse(p < .01, "**  ", ifelse(p < .05, "*   ", "    ")))
+  Rnew <- matrix(paste(R, mystars, sep = ""), ncol = ncol(x))
+  diag(Rnew) <- paste(diag(R), " ", sep = "")
+  row.names(Rnew) <- names(x)
+  colnames(Rnew) <- names(x)
+  kable(Rnew, digits = 3, caption = "Pearson correlation between variables", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+########################### TEXT under corr matrix
+if (input$submit > 0) {
+  cat("Significance Indicator: ***0.1%; **1%; *5% level")
+}
+
+######################### Wilks lambda
+
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+  Y <- as.data.frame(subset(csvfile(), select = input$Y))
+  cc1 <- CCA::cc(X, Y)
+  rho <- cc1$cor
+  n <- dim(X)[1]
+  p <- length(X)
+  q <- length(Y)
+  wilk <- as.data.frame(CCP::p.asym(rho, n, p, q, tstat = "Wilks"))
+  wilk <- wilk[, -1]
+  kable(wilk, digits = 3, caption = "Wilks' Lambda, using F-approximation (Rao's F)", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End wilks
+
+######################### CCA
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+  Y <- as.data.frame(subset(csvfile(), select = input$Y))
+  cc1 <- CCA::cc(X, Y)
+  rho <- cc1$cor
+  rho_2 <- rho^2
+  cancorr <- as.data.frame(cbind(rho, rho_2))
+  colnames(cancorr) <- c(
+    "Canonical Correlations",
+    "Squared Canonical Correlations"
+  )
+  kable(cancorr, digits = 3, caption = "Canonical Correlation Analysis", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End CCA
+
+######################### Raw canonical X
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+  Y <- as.data.frame(subset(csvfile(), select = input$Y))
+  cc1 <- CCA::cc(X, Y)
+  rho <- cc1$cor
+  n <- length(rho)
+  raw <- cc1[3:4]
+  raw1 <- raw$xcoef
+  raw1 <- as.data.frame(raw1)
+  colnames(raw1) <- paste("U", 1:n, sep = "")
+  raw1
+  kable(raw1, digits = 3, caption = "Raw Canonical Coefficients for the set X Variables", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End Raw canonical X
+
+
+######################### Raw canonical Y
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+  Y <- as.data.frame(subset(csvfile(), select = input$Y))
+  cc1 <- CCA::cc(X, Y)
+  rho <- cc1$cor
+  n <- length(rho)
+  raw <- cc1[3:4]
+  raw2 <- raw$ycoef
+  raw2 <- as.data.frame(raw2)
+  colnames(raw2) <- paste("V", 1:n, sep = "")
+  raw2
+  kable(raw2, digits = 3, caption = "Raw Canonical Coefficients for the set Y Variables", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End Raw canonical Y
+
+######################### Correlations Between X Variables and U
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+  Y <- as.data.frame(subset(csvfile(), select = input$Y))
+  cc1 <- CCA::cc(X, Y)
+  rho <- cc1$cor
+  n <- length(rho)
+  cc2 <- CCA::comput(X, Y, cc1)
+  load1 <- cc2$corr.X.xscores
+  load1 <- as.data.frame(load1)
+  colnames(load1) <- paste("U", 1:n, sep = "")
+  load1
+  kable(load1, digits = 3, caption = "Correlations Between X Variables and their Canonical Variables(U) (Loadings)", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End Correlations Between X Variables and U
+
+######################### Correlations Between Y Variables and V
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+  Y <- as.data.frame(subset(csvfile(), select = input$Y))
+  cc1 <- CCA::cc(X, Y)
+  rho <- cc1$cor
+  n <- length(rho)
+  cc2 <- CCA::comput(X, Y, cc1)
+  load2 <- cc2$corr.Y.yscores
+  load2 <- as.data.frame(load2)
+  colnames(load2) <- paste("V", 1:n, sep = "")
+  load2
+  kable(load2, digits = 3, caption = "Correlations Between Y Variables and their Canonical Variables(V) (Loadings)", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End Correlations Between Y Variables and V
+
+
+######################### Correlation between X variables and V
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+  Y <- as.data.frame(subset(csvfile(), select = input$Y))
+  cc1 <- CCA::cc(X, Y)
+  rho <- cc1$cor
+  n <- length(rho)
+  cc2 <- CCA::comput(X, Y, cc1)
+  load3 <- cc2$corr.X.yscores
+  load3 <- as.data.frame(load3)
+  colnames(load3) <- paste("V", 1:n, sep = "")
+  load3
+  kable(load3, digits = 3, caption = "Correlations Between X Variables and the opposite group of canonical variates (V) (Loadings)", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End Correlations Between X Variables and V
+
+######################### Correlation between Y variables and U
+if (input$submit > 0) {
+  X <- as.data.frame(subset(csvfile(), select = input$X))
+        Y <- as.data.frame(subset(csvfile(), select = input$Y))
+        cc1 <- CCA::cc(X, Y)
+        rho <- cc1$cor
+        n <- length(rho)
+        cc2 <- CCA::comput(X, Y, cc1)
+        load4 <- cc2$corr.Y.xscores
+        load4 <- as.data.frame(load4)
+        colnames(load4) <- paste("U", 1:n, sep = "")
+        load4
+  kable(load4, digits = 3, caption = "Correlations Between Y Variables and the opposite group of canonical variates (U) (Loadings)", align = "c", row.names = TRUE) %>%
+    kable_styling(bootstrap_options = c("hover"))
+}
+######################## End Correlations Between Y Variables and U
+
+
+
+tags$br()
+tags$br()
+```
+report generated from:
+**grapesCancor**
+
+
+**Developed by:**
+
+Dr.Pratheesh P. Gopinath
+
+Asst. Professor
+
+Agricultural Statistics
+
+Kerala Agricultural University
+
+**&**
+
+Sandra M.M.
+
+M.Sc.(Agricultural Statistics)
+
+College of Agriculture Vellayani

@@ -6,6 +6,7 @@ library(GGally)
 library(CCA)
 library(CCP)
 library(Hmisc)
+library(dplyr)
 
 ############################################### server
 server <- function(input, output, session) {
@@ -589,7 +590,57 @@ server <- function(input, output, session) {
     }
   ) 
  ########################################################### plot 2 finish 
+ 
+  
+  ############################################ Download Report
+  
+  ################################### Download Button
+  
+  output$var1 <- renderUI({
+    if (is.null(input$file1$datapath)) {
+      return()
+    }
+    if (is.null(input$submit)) {
+      return()
+    }
+    if (input$submit > 0) {
+      list(
+        radioButtons("format", "Download report:", c("HTML", "PDF", "Word"),
+                     inline = TRUE
+        ),
+        downloadButton("downloadReport")
+      )
+    }
+  })
   
   
+  
+  
+  
+  output$downloadReport <- downloadHandler(
+    filename = function() {
+      paste("my-report", sep = ".", switch(input$format,
+                                           PDF = "pdf",
+                                           HTML = "html",
+                                           Word = "docx"
+      ))
+    },
+    content = function(file) {
+      src <- normalizePath("report.Rmd")
+      owd <- setwd(tempdir())
+      on.exit(setwd(owd))
+      file.copy(src, "report.Rmd", overwrite = TRUE)
+      out <- render("report.Rmd", switch(input$format,
+                                         PDF = pdf_document(),
+                                         HTML = html_document(),
+                                         Word = word_document()
+      ))
+      file.rename(out, file)
+    }
+  )
+  
+  
+  
+ ############################### END 
   
   }
