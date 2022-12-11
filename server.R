@@ -605,7 +605,7 @@ server <- function(input, output, session) {
     }
     if (input$submit > 0) {
       list(
-        radioButtons("format", "Download report:", c("HTML", "PDF", "Word"),
+        radioButtons("format", "Download report:", c("HTML"),
                      inline = TRUE
         ),
         downloadButton("downloadReport")
@@ -619,10 +619,9 @@ server <- function(input, output, session) {
   
   output$downloadReport <- downloadHandler(
     filename = function() {
-      paste("my-report", sep = ".", switch(input$format,
-                                           PDF = "pdf",
-                                           HTML = "html",
-                                           Word = "docx"
+      paste("grapesCancor", sep = ".", switch(input$format,
+                                           HTML = "html"
+                                           
       ))
     },
     content = function(file) {
@@ -631,10 +630,8 @@ server <- function(input, output, session) {
       on.exit(setwd(owd))
       file.copy(src, "report.Rmd", overwrite = TRUE)
       out <- render("report.Rmd", switch(input$format,
-                                         PDF = pdf_document(),
-                                         HTML = html_document(),
-                                         Word = word_document()
-      ))
+                                         HTML = html_document()
+                                     ))
       file.rename(out, file)
     }
   )

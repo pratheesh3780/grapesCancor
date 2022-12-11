@@ -42,11 +42,12 @@ if (input$submit > 0) {
   colnames(Rnew) <- names(x)
   kable(Rnew, digits = 3, caption = "Pearson correlation between variables", align = "c", row.names = TRUE) %>%
     kable_styling(bootstrap_options = c("hover"))
-}
+}  
+
 ########################### TEXT under corr matrix
 if (input$submit > 0) {
   cat("Significance Indicator: ***0.1%; **1%; *5% level")
-}
+}  
 
 ######################### Wilks lambda
 
@@ -80,7 +81,7 @@ if (input$submit > 0) {
   kable(cancorr, digits = 3, caption = "Canonical Correlation Analysis", align = "c", row.names = TRUE) %>%
     kable_styling(bootstrap_options = c("hover"))
 }
-######################## End CCA
+######################## End CCA  
 
 ######################### Raw canonical X
 if (input$submit > 0) {
@@ -184,14 +185,17 @@ if (input$submit > 0) {
   kable(load4, digits = 3, caption = "Correlations Between Y Variables and the opposite group of canonical variates (U) (Loadings)", align = "c", row.names = TRUE) %>%
     kable_styling(bootstrap_options = c("hover"))
 }
-######################## End Correlations Between Y Variables and U
-
-
-
+######################## End Correlations Between Y Variables and  
 tags$br()
 tags$br()
-```
-report generated from:
+tags$br()
+tags$br()
+```  
+
+
+
+### report generated from:  
+
 **grapesCancor**
 
 
@@ -211,4 +215,17 @@ Sandra M.M.
 
 M.Sc.(Agricultural Statistics)
 
-College of Agriculture Vellayani
+College of Agriculture Vellayani  
+
+
+::: {#hello .greeting .message style="color: #c9c6c5;"}  
+<center>  
+
+**You can copy the results table to MS Word. If the table is large use Layout Orientation landscape in Word**  
+
+</center>
+:::  
+
+## .  
+
+## .
